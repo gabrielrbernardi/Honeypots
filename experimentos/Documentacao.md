@@ -1,4 +1,29 @@
 # Configuração
+## Fluxograma geral
+```mermaid
+flowchart TB
+A([Início])
+subgraph Região [<a href='#definição-das-regiões'>Região</a>]
+B[<a href='#efetuar-a-criação-de-uma-vpc-e-um-subnet-para-cada-região-escolhida'>Criação da VPC</a>]
+C[<a href='#efetuar-a-criação-de-uma-vpc-e-um-subnet-para-cada-região-escolhida'>Criação da Subnet</a>]
+end
+D[<a href='#efetuar-a-criação-de-uma-política-de-firewall-para-que-possa-ser-aplicada-as-vpcs'>Criação da política de firewall</a>]
+subgraph Instâncias [<a href='#efetuar-criação-de-instâncias'>Instâncias</a>]
+E[<a href='#efetuar-criação-de-instâncias'>Criação das instâncias</a>]
+F[<a href='#efetuar-criação-de-instâncias'>Configuração das instâncias</a>]
+end
+G(((Fim)))
+R[Escolha da Região]
+A --> R -->|1 .. Quantidade de regiões| Região
+B --> C
+C --> B
+C --> D
+D --> Instâncias
+E --> F
+F --> E
+F --> G
+
+```
 ## Configuração do Google Cloud Platform
 ### Definição das regiões
 | Região | Local |
@@ -10,12 +35,13 @@
 | asia-east2 | Hong Kong |
 
 ### Efetuar a criação de uma VPC e um *subnet* para cada região escolhida.
+[teste](#efetuar-criação-de-instâncias)
 1. Ir para o caminho:
     ```
     VPC network > VPC networks > Create new VPC network
     ```
 2. Definir nome para a VPC.
-3. Em `New subnet`
+3. Em `New subnet`:
     1. Definir o nome para a subrede.
     2. Selecionar a [região da subrede](#definição-das-regiões).
     3. Selecionar `IPv4 and IPv6 (dual-stack)` para ter a possibilidade de associar IPv4 e IPv6 às instâncias.
@@ -23,7 +49,7 @@
         - Obs: Por padrão, foi configurado o seguinte intervalo `10.0.1.0/24`
     5. Confirmar a criação da subrede.
 - Obs: Regras de *firewall* podem ser configuradas nesse momento. No entanto, uma política será [criada posteriormente](#efetuar-a-criação-de-uma-política-de-firewall-para-que-possa-ser-aplicada-as-vpcs) para que possa ser aplicada a todas as VPCs criadas.
-4. Confirme a criação da VPC
+1. Confirme a criação da VPC
 
 ### Efetuar a criação de uma política de *firewall* para que possa ser aplicada as VPCs
 - Para as portas padrões do SSH e Telnet, as portas 22/tcp e 23/tcp serão liberadas totalmente.
