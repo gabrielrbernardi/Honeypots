@@ -2,3 +2,5 @@
 valorChaveSSH.txt
 *.png
 *.xlsx
+*.ini
+logs/

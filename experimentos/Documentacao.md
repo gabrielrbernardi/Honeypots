@@ -35,7 +35,6 @@ F --> G
 | asia-east2 | Hong Kong |
 
 ### Efetuar a criação de uma VPC e um *subnet* para cada região escolhida.
-[teste](#efetuar-criação-de-instâncias)
 1. Ir para o caminho:
     ```
     VPC network > VPC networks > Create new VPC network
