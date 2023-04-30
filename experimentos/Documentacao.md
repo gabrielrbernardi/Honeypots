@@ -1,7 +1,7 @@
 # Configuração
 ## Fluxograma geral
 ```mermaid
-flowchart TB
+flowchart LR
 A([Início])
 subgraph Região [<a href='#definição-das-regiões'>Região</a>]
 B[<a href='#efetuar-a-criação-de-uma-vpc-e-um-subnet-para-cada-região-escolhida'>Criação da VPC</a>]
