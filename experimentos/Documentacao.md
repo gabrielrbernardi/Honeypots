@@ -168,7 +168,7 @@ F --> G
     3. Alterar permissão para conexão usando senha
         1. Acessar arquivo de configuração do SSH
             ```
-            nano /etc/ssh/sshd_config
+            sudo nano /etc/ssh/sshd_config
             ```
         2. Trocar *flag* de autorização
             ```
@@ -215,7 +215,7 @@ F --> G
 
 8. Criando ambiente virtual para execução do cowrie.
     ```
-    python -m venv cowrie-env
+    python3 -m venv cowrie-env
     ```
 
 9. Ativação de ambiente virtual.
