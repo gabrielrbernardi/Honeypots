@@ -4,3 +4,5 @@ valorChaveSSH.txt
 *.xlsx
 *.ini
 logs/
+logs.log
+instanceInfoConnection.json
