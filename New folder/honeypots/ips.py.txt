@@ -1,4 +1,0 @@
----- MAQUINA 01 ----
-{'Taiwan'}
----- MAQUINA 02 ----
-{'Malaysia'}
