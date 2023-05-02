@@ -6,3 +6,4 @@ valorChaveSSH.txt
 logs/
 logs.log
 instanceInfoConnection.json
+*.sqlite
