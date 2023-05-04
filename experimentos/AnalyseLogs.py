@@ -23,23 +23,31 @@ class AnalyseLogs():
             self.regions = []
             self.regions.append(db["region01".lower()])
             self.regions.append(db["region02".lower()])
+            self.regions.append(db["region03".lower()])
+            self.regions.append(db["region04".lower()])
+            self.regions.append(db["region05".lower()])
             self.outputExcelPath = db["outputExcelPath".lower()]
             self.outputExcelFile = db["outputExcelFile".lower()]
 
     def openLogFiles(self):
-        defaultValue = "cowrie.json.2023-04-"
+        defaultValue = "cowrie.json.2023-05-"
         logFilename = []
-        for i in range(29,31):
-            logFilename.append(defaultValue + str(i))
+        for i in range(1,3):
+            logFilename.append(defaultValue + str(i).zfill(2))
+
+        print(logFilename)
         
         self.logContents = []
+        instanceLabel = "-instance-0"
 
-        for i in self.regions:
-            tempDataFrames = []
-            for j in logFilename:
-                tempLogFilename = self.logsPath + i + "\\" + j
-                print(tempLogFilename)
-                tempDataFrames.append(pd.read_json(tempLogFilename))
+        tempDataFrames = []
+        for idx, region in enumerate(self.regions):
+            # quantidade de tipos de acesso
+            for idx2 in range(2):
+                for _, tempFilename in enumerate(logFilename):
+                    tempLogFilename = self.logsPath + region + "\\" + (region + instanceLabel + str((idx2 % 2) + 1) + "-" + tempFilename)
+                    print(tempLogFilename)
+                    tempDataFrames.append(pd.read_json(tempLogFilename, lines=True))
             
             # Juntando dataframes por regiao
             tempDf = pd.concat(tempDataFrames)

@@ -7,3 +7,5 @@ logs/
 logs.log
 instanceInfoConnection.json
 *.sqlite
+teste/
+*.rar

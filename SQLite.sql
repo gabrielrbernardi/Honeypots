@@ -12,5 +12,14 @@ FROM (
     UNION 
     SELECT eventid, src_ip, session, duration FROM df_1
     WHERE duration != 'nan' AND eventid != 'cowrie.log.closed'
+    UNION 
+    SELECT eventid, src_ip, session, duration FROM df_2
+    WHERE duration != 'nan' AND eventid != 'cowrie.log.closed'
+    UNION 
+    SELECT eventid, src_ip, session, duration FROM df_3
+    WHERE duration != 'nan' AND eventid != 'cowrie.log.closed'
+    UNION 
+    SELECT eventid, src_ip, session, duration FROM df_4
+    WHERE duration != 'nan' AND eventid != 'cowrie.log.closed'
 )
 ORDER BY duration_float DESC;
