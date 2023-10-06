@@ -1,86 +1,66 @@
-import pandas as pd
-import json
-from configparser import ConfigParser
-# import openpyxl
-from sqlalchemy import create_engine
 import sqlite3
-
+import pandas as pd
 class AnalyseLogs():
-    def __init__(self) -> None:
-        pass
+    def __init__(self):
+        self.con = sqlite3.connect("honeypotLogs.sqlite")
+        self.cur = self.con.cursor()
 
-    def readConfigFile(self):
-        parser = ConfigParser()
-        parser.read("C:\\Users\\gabri\\Documentos\\UFU\\Honeypots\\experimentos\\config.ini")
+    def fetchData(self):        
+        self.regioes = [
+            "asia_east2",
+            "europe_west3",
+            "me_west1",
+            "southamerica_east1",
+            "us_west2"
+        ]
 
-        db = {}
-        if parser.has_section("logs"):
-            params = parser.items("logs")
-            for param in params:
-                db[param[0]] = param[1]
+        for regiao in self.regioes:
+            self.df = pd.DataFrame()
+            self.df = pd.read_sql_query(f"select * from {regiao}", self.con)
+            print()
+            print(".", end=" ", flush=True)
+            # self.linhas = self.df
+            self.ipv6 = self.df.loc[(self.df["dst_ip"].str.contains("[a-z A-Z 0-9]+::", regex=True)) & (self.df["eventid"] == "cowrie.session.connect")]
+            print(".", end=" ", flush=True)
+            self.conexoesGerais = self.df.loc[(self.df["eventid"] == "cowrie.session.connect")]
+            print(".", end=" ", flush=True)
+            self.conexoesSSH = self.df.loc[(self.df["eventid"] == "cowrie.session.connect") & (self.df["protocol"] == "ssh")]
+            print(".", end=" ", flush=True)
+            self.conexoesTelnet = self.df.loc[(self.df["eventid"] == "cowrie.session.connect") & (self.df["protocol"] == "telnet")]
+            print(".", end=" ", flush=True)
+            self.conexoesSucesso = self.df.loc[(self.df["eventid"] == "cowrie.login.success")]
+            print(".", end=" ", flush=True)
+            self.conexoesSucessoAleatorio = self.df.loc[(self.df["eventid"] == "cowrie.login.success") & (self.df["sensor"].str.contains("[a-z A-Z 0-9]+-instance-01", regex=True))]
+            print(".", end=" ", flush=True)
+            self.conexoesSucessoPasslist = self.df.loc[(self.df["eventid"] == "cowrie.login.success") & (self.df["sensor"].str.contains("[a-z A-Z 0-9]+-instance-02", regex=True))]
+            print(".", end=" ", flush=True)
+            self.conexoesFalha = self.df.loc[(self.df["eventid"] == "cowrie.login.failed")]
+            print(".", end=" ", flush=True)
+            self.conexoesFalhaAleatorio = self.df.loc[(self.df["eventid"] == "cowrie.login.failed") & (self.df["sensor"].str.contains("[a-z A-Z 0-9]+-instance-01", regex=True))]
+            print(".", end=" ", flush=True)
+            self.conexoesFalhaPasslist = self.df.loc[(self.df["eventid"] == "cowrie.login.failed") & (self.df["sensor"].str.contains("[a-z A-Z 0-9]+-instance-02", regex=True))]
             
-            self.logsPath = db["logsPath".lower()]
-            self.regions = []
-            self.regions.append(db["region01".lower()])
-            self.regions.append(db["region02".lower()])
-            self.regions.append(db["region03".lower()])
-            self.regions.append(db["region04".lower()])
-            self.regions.append(db["region05".lower()])
-            self.outputExcelPath = db["outputExcelPath".lower()]
-            self.outputExcelFile = db["outputExcelFile".lower()]
-
-    def openLogFiles(self):
-        defaultValue = "cowrie.json.2023-05-"
-        logFilename = []
-        for i in range(1,3):
-            logFilename.append(defaultValue + str(i).zfill(2))
-
-        print(logFilename)
-        
-        self.logContents = []
-        instanceLabel = "-instance-0"
-
-        tempDataFrames = []
-        for idx, region in enumerate(self.regions):
-            # quantidade de tipos de acesso
-            for idx2 in range(2):
-                for _, tempFilename in enumerate(logFilename):
-                    tempLogFilename = self.logsPath + region + "\\" + (region + instanceLabel + str((idx2 % 2) + 1) + "-" + tempFilename)
-                    print(tempLogFilename)
-                    tempDataFrames.append(pd.read_json(tempLogFilename, lines=True))
+            self.showData(regiao)
             
-            # Juntando dataframes por regiao
-            tempDf = pd.concat(tempDataFrames)
-            tempDf = tempDf.astype(str)
-            self.logContents.append(tempDf)
-            
-        # for idx, elem in enumerate(self.logContents):
-        #     self.logContents[idx] = elem.set_index(["session", "eventid"])
-            # print(self.logContents[i])
+    def showData(self, nomeRegiao):
+        print()
+        print(f"Regiao: {nomeRegiao}")
+        # print(self.ipv6)
+        print(f"{'Quantidade IPv6:':<30} \033[36m{str(len(self.ipv6)):>30}\033[0m")
+        if(len(self.ipv6)):
+            self.sessionsIpv6 = []
+            self.ipv6.apply(self.getSessionIpv6, axis=1)
+            print(self.sessionsIpv6)
+        print(f"{'Conexoes Gerais:':<30} {str(len(self.conexoesGerais)):>30}")
+        print(f"{'SSH':<30} {str(len(self.conexoesSSH)):>30}")
+        print(f"{'Telnet':<30} {str(len(self.conexoesTelnet)):>30}")
+        print(f"{'Conexoes Sucesso':<30} \033[92m{str(len(self.conexoesSucesso)):>30}\033[0m")
+        print(f"{'Conexoes Sucesso Aleatorio':<30} {str(len(self.conexoesSucessoAleatorio)):>30}")
+        print(f"{'Conexoes Sucesso Passlist':<30} {str(len(self.conexoesSucessoPasslist)):>30}")
+        print(f"{'Conexoes Falha':<30} \033[91m{str(len(self.conexoesFalha)):>30}\033[0m")
+        print(f"{'Conexoes Falha Aleatorio':<30} {str(len(self.conexoesFalhaAleatorio)):>30}")
+        print(f"{'Conexoes Falha Passlist':<30} {str(len(self.conexoesFalhaPasslist)):>30}")
 
-    def exportLogData(self):
-        # disk_engine = create_engine('sqlite:///my_lite_store.sqlite')
-        conn = sqlite3.connect('honeypotLogs.sqlite')
-
-        for idx, elem in enumerate(self.logContents):
-            table_name = 'df_' + str(idx)
-            schema = ','.join(['{} TEXT'.format(col) for col in elem.columns])
-            conn.execute('DROP  TABLE {}'.format(table_name))
-            conn.execute('CREATE TABLE IF NOT EXISTS {} ({})'.format(table_name, schema))
-
-            # insert the data into the table
-            for row in elem.itertuples(index=False):
-                placeholders = ','.join(['?'] * len(row))
-                conn.execute('INSERT INTO {} VALUES ({})'.format(table_name, placeholders), row)
-
-        conn.commit()
-        conn.close()
-                
-            # for row in elem.itertuples(index=False):
-            #     conn.execute('INSERT INTO {} VALUES ({})'.format("tabela_"+str(idx)), row)
-            # elem.to_sql(name=str(idx), con=disk_engine, if_exists='append', escapechar='\\')
-
-
-        # with pd.ExcelWriter(self.outputExcelPath + self.outputExcelFile) as writter:
-                # elem.to_excel(writter, str(idx), index=True)
-                # elem.to_csv(self.outputExcelPath +"resultado" + str(idx) + ".csv", index=True)
+    def getSessionIpv6(self, linha):
+        self.sessionsIpv6.append(linha["session"])
+        return linha

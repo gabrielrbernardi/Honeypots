@@ -1,8 +1,8 @@
 import paramiko
 from configparser import ConfigParser
-from scp import SCPClient
+import SCPClient
 import json
-
+import os
 class ConnectInstances():
     def __init__(self):
         pass
@@ -24,12 +24,18 @@ class ConnectInstances():
             self.jsonFilePath = db["jsonFilePath".lower()]
 
         # read connection values from all instances
-        f = open(self.jsonFilePath, "r")
-        self.instances = json.load(f)
-        f.close()
-        print(self.instances)
+        self.getInstancesData()
+        # f = open(self.jsonFilePath, "r")
+        # self.instances = json.load(f)
+        # f.close()
+        # print(self.instances)
 
-    def getRemoteData(self, ipAddress, region, instanceName):
+    def getInstancesData(self):
+        regions = ['us-west2', 'southamerica-east1', 'europe-west3', 'me-west1', 'asia-east2']
+        intancesData = os.popen("gcloud compute instances list")
+        print(intancesData)
+
+    def getRemoteData(self, ipAddress, region, instanceName, flag = False):
         def createSSHClient(server, port, user, password):
             client = paramiko.SSHClient()
             client.load_system_host_keys()
@@ -38,9 +44,13 @@ class ConnectInstances():
             return client
 
         ssh = createSSHClient(ipAddress, self.defaultSSHPort, self.defaultSSHUsername, self.defaultSSHPassword)
-        scp = SCPClient(ssh.get_transport())
+        scp = scp.SCPClient(ssh.get_transport())
 
-        scp.get('/home/cowrie/cowrie/var/log/cowrie/cowrie.json.' + self.dateLog, "C:\\Users\\gabri\\Documentos\\UFU\\Honeypots\\experimentos\\logs\\"+ region + "\\" + instanceName + "-cowrie.json." + self.dateLog)
+        if flag:
+            scp.get('/home/cowrie/cowrie/var/log/cowrie/cowrie.json', "C:\\Users\\gabri\\Documentos\\UFU\\Honeypots\\experimentos\\logs\\"+ region + "\\" + instanceName + "-cowrie.json." + self.dateLog.replace("10", "11"))
+        else:
+            for i in range(1,11):
+                scp.get('/home/cowrie/cowrie/var/log/cowrie/cowrie.json.' + self.dateLog.replace("10", str(i).zfill(2)), "C:\\Users\\gabri\\Documentos\\UFU\\Honeypots\\experimentos\\logs\\"+ region + "\\" + instanceName + "-cowrie.json." + self.dateLog.replace("10", str(i).zfill(2)))
 
         scp.close()
     
@@ -50,3 +60,4 @@ class ConnectInstances():
             for j in self.instances[i]:
                 print("Instancia: " + j["name"] + " (" + j["ip"] + ")")
                 self.getRemoteData(j["ip"], i, j["name"])
+                self.getRemoteData(j["ip"], i, j["name"], True)
