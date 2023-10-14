@@ -1,15 +1,20 @@
 import paramiko
 from configparser import ConfigParser
-import SCPClient
+import scp
+from scp import SCPClient
 import json
 import os
+import subprocess
+import datetime
+
 class ConnectInstances():
     def __init__(self):
         pass
     
     def readConfigFile(self):
         parser = ConfigParser()
-        parser.read("C:\\Users\\gabri\\Documentos\\UFU\\Honeypots\\experimentos\\config.ini")
+        # parser.read("C:\\Users\\gabri\\Documentos\\UFU\\Honeypots\\experimentos\\config.ini")
+        parser.read("/home/gabriel/github/Honeypots/experimentos/config.ini")
 
         db = {}
         if parser.has_section("credentials"):
@@ -20,20 +25,22 @@ class ConnectInstances():
             self.defaultSSHPort = db["defaultSSHPort".lower()]
             self.defaultSSHUsername = db["defaultSSHUsername".lower()]
             self.defaultSSHPassword = db["defaultSSHPassword".lower()]
-            self.dateLog = db["dateLog".lower()]
+            # self.dateLog = db["dateLog".lower()]
+            self.dateLog = datetime.datetime.now().strftime("%Y-%m-%d")
             self.jsonFilePath = db["jsonFilePath".lower()]
 
         # read connection values from all instances
-        self.getInstancesData()
-        # f = open(self.jsonFilePath, "r")
-        # self.instances = json.load(f)
-        # f.close()
+        # self.getInstancesData()
+        f = open(self.jsonFilePath, "r")
+        self.instances = json.load(f)
+        f.close()
         # print(self.instances)
 
     def getInstancesData(self):
         regions = ['us-west2', 'southamerica-east1', 'europe-west3', 'me-west1', 'asia-east2']
-        intancesData = os.popen("gcloud compute instances list")
-        print(intancesData)
+        intancesData = subprocess.Popen("gcloud compute instances list | grep -v 'NAME'", shell=True, stdout=subprocess.PIPE).stdout
+        print("gcloud compute instances list")
+        print(1, intancesData)
 
     def getRemoteData(self, ipAddress, region, instanceName, flag = False):
         def createSSHClient(server, port, user, password):
@@ -44,15 +51,23 @@ class ConnectInstances():
             return client
 
         ssh = createSSHClient(ipAddress, self.defaultSSHPort, self.defaultSSHUsername, self.defaultSSHPassword)
-        scp = scp.SCPClient(ssh.get_transport())
 
-        if flag:
-            scp.get('/home/cowrie/cowrie/var/log/cowrie/cowrie.json', "C:\\Users\\gabri\\Documentos\\UFU\\Honeypots\\experimentos\\logs\\"+ region + "\\" + instanceName + "-cowrie.json." + self.dateLog.replace("10", "11"))
-        else:
-            for i in range(1,11):
-                scp.get('/home/cowrie/cowrie/var/log/cowrie/cowrie.json.' + self.dateLog.replace("10", str(i).zfill(2)), "C:\\Users\\gabri\\Documentos\\UFU\\Honeypots\\experimentos\\logs\\"+ region + "\\" + instanceName + "-cowrie.json." + self.dateLog.replace("10", str(i).zfill(2)))
+        # verificacao se existe arquivo de log para ser baixado
+        _, stdout, _ = ssh.exec_command("find /home/cowrie/cowrie/var/log/cowrie/ -name 'cowrie.json.2*'")
+        output = stdout.read()
+        resposta_busca = output.decode("utf-8")
+        scpCon = scp.SCPClient(ssh.get_transport())
+        
+        if resposta_busca == "": #se nao encontrar dados de log por dia, baixa o arquivo de log existente
+            scpCon.get('/home/cowrie/cowrie/var/log/cowrie/cowrie.json', "/data/honeypots/ipv6/exp_1/" + instanceName + "-cowrie.json." + self.dateLog + ".empty")
+        else: #senao, baixara todos os arquivos de log existentes
+            arquivos_log = resposta_busca.split("\n")
+            for arquivo in arquivos_log:
+                log_arquivo_nome = arquivo.split("/")[len(arquivo.split("/")) - 1]
+                print(log_arquivo_nome)
+                scpCon.get(arquivo, "/data/honeypots/ipv6/exp_1/" + instanceName + "-" + log_arquivo_nome)
 
-        scp.close()
+        scpCon.close()
     
     def connectInstances(self):
         for i in self.instances:
@@ -60,4 +75,3 @@ class ConnectInstances():
             for j in self.instances[i]:
                 print("Instancia: " + j["name"] + " (" + j["ip"] + ")")
                 self.getRemoteData(j["ip"], i, j["name"])
-                self.getRemoteData(j["ip"], i, j["name"], True)

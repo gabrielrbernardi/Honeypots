@@ -13,22 +13,22 @@ try:
     print("2 - Generate DB")
     print("3 - Analyse Values")
     # choose = int(input("Option: "))
-    # choose = 2
-    choose = 3
+    choose = 1
+    # choose = 3
 
     if(choose == 1):
         ci = ConnectInstances()
         ci.readConfigFile()
         ci.connectInstances()
-    elif choose == 2:
-        gd1 = GenerateDB1()
-        # al = GenerateDB()
-        # al.readConfigFile()
-        # al.openLogFiles()
-        # al.exportLogData()
-    elif choose == 3:
-        al = AnalyseLogs()
-        al.fetchData()
+    # elif choose == 2:
+    #     gd1 = GenerateDB1()
+    #     # al = GenerateDB()
+    #     # al.readConfigFile()
+    #     # al.openLogFiles()
+    #     # al.exportLogData()
+    # elif choose == 3:
+    #     al = AnalyseLogs()
+    #     al.fetchData()
 except:
     print(traceback.format_exc())
     # logging.error("Erro na execucao")
