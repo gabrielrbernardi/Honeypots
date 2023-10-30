@@ -10,18 +10,19 @@ import datetime
 class ConnectInstances():
     def __init__(self):
         pass
-    
+
     def readConfigFile(self):
         parser = ConfigParser()
         # parser.read("C:\\Users\\gabri\\Documentos\\UFU\\Honeypots\\experimentos\\config.ini")
-        parser.read("/home/gabriel/github/Honeypots/experimentos/config.ini")
+        # parser.read("/home/gribeiro/logs/Honeypots/experimentos/config.ini")
+        parser.read("/mnt/c/gabriel/UFU/honeypots/Honeypots/experimentos/config.ini")
 
         db = {}
         if parser.has_section("credentials"):
             params = parser.items("credentials")
             for param in params:
                 db[param[0]] = param[1]
-            
+
             self.defaultSSHPort = db["defaultSSHPort".lower()]
             self.defaultSSHUsername = db["defaultSSHUsername".lower()]
             self.defaultSSHPassword = db["defaultSSHPassword".lower()]
@@ -57,18 +58,18 @@ class ConnectInstances():
         output = stdout.read()
         resposta_busca = output.decode("utf-8")
         scpCon = scp.SCPClient(ssh.get_transport())
-        
+
         if resposta_busca == "": #se nao encontrar dados de log por dia, baixa o arquivo de log existente
-            scpCon.get('/home/cowrie/cowrie/var/log/cowrie/cowrie.json', "/data/honeypots/ipv6/exp_1/" + instanceName + "-cowrie.json." + self.dateLog + ".empty")
+            scpCon.get('/home/cowrie/cowrie/var/log/cowrie/cowrie.json', "/data/honeypots/ipv6/exp_1/logsColeta/" + instanceName + "-cowrie.json." + self.dateLog + ".empty")
         else: #senao, baixara todos os arquivos de log existentes
             arquivos_log = resposta_busca.split("\n")
             for arquivo in arquivos_log:
                 log_arquivo_nome = arquivo.split("/")[len(arquivo.split("/")) - 1]
                 print(log_arquivo_nome)
-                scpCon.get(arquivo, "/data/honeypots/ipv6/exp_1/" + instanceName + "-" + log_arquivo_nome)
+                scpCon.get(arquivo, "/data/honeypots/ipv6/exp_1/logsColeta/" + instanceName + "-" + log_arquivo_nome)
 
         scpCon.close()
-    
+
     def connectInstances(self):
         for i in self.instances:
             print("\nRegiao: " + i)

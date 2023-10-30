@@ -1,0 +1,47 @@
+=======================MENU=======================
+1 - Get Logs
+2 - Generate DB
+3 - Analyse Values
+
+Regiao: asia-east2
+Instancia: asia-east2-instance-01 (35.220.165.67)
+Instancia: asia-east2-instance-02 (35.241.91.213)
+Instancia: asia-east2-instance-03 (34.92.217.141)
+cowrie.json.2023-10-07
+cowrie.json.2023-10-08
+cowrie.json.2023-10-18
+cowrie.json.2023-10-13
+cowrie.json.2023-10-22
+cowrie.json.2023-10-10
+cowrie.json.2023-10-17
+cowrie.json.2023-10-16
+cowrie.json.2023-10-06
+cowrie.json.2023-10-21
+cowrie.json.2023-10-14
+cowrie.json.2023-10-20
+cowrie.json.2023-10-19
+cowrie.json.2023-10-12
+cowrie.json.2023-10-11
+cowrie.json.2023-10-09
+cowrie.json.2023-10-15
+
+
+Regiao: europe-west3
+Instancia: europe-west3-instance-01 (35.198.76.94)
+Instancia: europe-west3-instance-02 (35.198.77.48)
+Instancia: europe-west3-instance-03 (34.159.113.90)
+
+Regiao: me-west1
+Instancia: me-west1-instance-01 (34.165.6.184)
+Instancia: me-west1-instance-02 (34.165.190.29)
+Instancia: me-west1-instance-03 (34.165.38.88)
+
+Regiao: southamerica-east1
+Instancia: southamerica-east1-instance-01 (34.95.154.28)
+Instancia: southamerica-east1-instance-02 (34.95.209.169)
+Instancia: southamerica-east1-instance-03 (35.247.251.246)
+
+Regiao: us-west2
+Instancia: us-west2-instance-01 (34.102.24.243)
+Instancia: us-west2-instance-02 (34.102.13.93)
+Instancia: us-west2-instance-03 (34.94.5.236)

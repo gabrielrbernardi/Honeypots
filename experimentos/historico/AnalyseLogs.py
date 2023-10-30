@@ -1,5 +1,6 @@
 import sqlite3
 import pandas as pd
+
 class AnalyseLogs():
     def __init__(self):
         self.con = sqlite3.connect("honeypotLogs.sqlite")
